@@ -1,0 +1,33 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Java
+.gradle/
+build/
+target/
+*.class
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# JavaScript
+node_modules/
+dist/
+.next/
+coverage/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Runtime data
+data/
+logs/
+artifacts/
