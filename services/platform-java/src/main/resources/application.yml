@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: yuan-platform-java
+  datasource:
+    url: ${PLATFORM_JDBC_URL:jdbc:h2:file:./data/platform-db;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${PLATFORM_JDBC_USERNAME:sa}
+    password: ${PLATFORM_JDBC_PASSWORD:}
+  flyway:
+    enabled: true
+  sql:
+    init:
+      mode: never
+  jackson:
+    default-property-inclusion: non_null
+server:
+  error:
+    include-message: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+platform:
+  bootstrap:
+    tenant-slug: ${PLATFORM_BOOTSTRAP_TENANT:}
+    tenant-name: ${PLATFORM_BOOTSTRAP_TENANT_NAME:}
+    username: ${PLATFORM_BOOTSTRAP_USERNAME:}
+    password: ${PLATFORM_BOOTSTRAP_PASSWORD:}
