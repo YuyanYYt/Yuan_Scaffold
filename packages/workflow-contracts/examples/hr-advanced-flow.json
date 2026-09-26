@@ -1,0 +1,520 @@
+{
+  "schema_version": "0.1.0",
+  "workflow_id": "hr.request_with_approval",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "entry_node_id": "chat_in",
+  "state_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "user_message"
+    ],
+    "properties": {
+      "user_message": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "request_kind": {
+        "enum": [
+          "read",
+          "write"
+        ]
+      },
+      "attempts": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "prepared_action": {
+        "type": "object",
+        "required": [
+          "idempotency_key"
+        ],
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "result": {
+        "type": "object"
+      },
+      "runtime_context": {
+        "type": "object"
+      }
+    }
+  },
+  "types": {
+    "UserMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Control": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "bindings": {
+    "models": [],
+    "prompts": [],
+    "knowledge_bases": [],
+    "indexes": [],
+    "tools": [
+      {
+        "id": "read_balance",
+        "resource_id": "tool.hr_read_balance",
+        "version": "1.0.0",
+        "effect": "read",
+        "risk": "low",
+        "required_capabilities": [
+          "hr.balance.read_self"
+        ]
+      },
+      {
+        "id": "submit_leave",
+        "resource_id": "tool.hr_submit_leave",
+        "version": "1.0.0",
+        "effect": "write",
+        "risk": "high",
+        "required_capabilities": [
+          "hr.leave.submit_self"
+        ]
+      }
+    ],
+    "subgraphs": [
+      {
+        "id": "reconcile",
+        "resource_id": "workflow.hr_reconcile_status",
+        "version": "1.0.0"
+      }
+    ],
+    "approval_policies": [
+      {
+        "id": "leave_approval",
+        "resource_id": "approval.hr_leave",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "execution_policy": {
+    "max_steps": 30,
+    "max_duration_ms": 120000,
+    "max_tool_calls": 4,
+    "max_model_tokens": 0,
+    "max_cost": {
+      "amount_micro": 0,
+      "currency": "USD"
+    }
+  },
+  "nodes": [
+    {
+      "id": "chat_in",
+      "type": "chat_input",
+      "type_version": "0.1.0",
+      "input_ports": [],
+      "output_ports": [
+        {
+          "name": "request",
+          "schema_ref": "#/types/UserMessage",
+          "required": true
+        }
+      ],
+      "config": {
+        "source": "user_message"
+      }
+    },
+    {
+      "id": "auth",
+      "type": "auth_context",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "request",
+          "schema_ref": "#/types/UserMessage",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "ready",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "source": "server_context"
+      }
+    },
+    {
+      "id": "route",
+      "type": "branch",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "in",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "read",
+          "schema_ref": "#/types/Control",
+          "required": true
+        },
+        {
+          "name": "default",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "cases": [
+          {
+            "when": {
+              "op": "eq",
+              "state_path": "$.request_kind",
+              "value": "read"
+            },
+            "port": "read"
+          }
+        ],
+        "default_port": "default"
+      }
+    },
+    {
+      "id": "read_tool",
+      "type": "tool_call",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "in",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "result",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "binding_id": "read_balance",
+        "input_state_path": "$.user_message",
+        "timeout_ms": 5000,
+        "max_retries": 1
+      }
+    },
+    {
+      "id": "bounded_loop",
+      "type": "loop",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "initial",
+          "schema_ref": "#/types/Control",
+          "required": true
+        },
+        {
+          "name": "repeat",
+          "schema_ref": "#/types/Control",
+          "required": false
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "next",
+          "schema_ref": "#/types/Control",
+          "required": true
+        },
+        {
+          "name": "done",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "until": {
+          "op": "gte",
+          "state_path": "$.attempts",
+          "value": 2
+        },
+        "max_iterations": 3,
+        "max_duration_ms": 15000
+      }
+    },
+    {
+      "id": "reconcile_subgraph",
+      "type": "subgraph",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "in",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "result",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "binding_id": "reconcile",
+        "input_state_path": "$.result",
+        "max_steps": 4
+      }
+    },
+    {
+      "id": "approve_write",
+      "type": "human_approval",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "in",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "approved",
+          "schema_ref": "#/types/Control",
+          "required": true
+        },
+        {
+          "name": "rejected",
+          "schema_ref": "#/types/Control",
+          "required": true
+        },
+        {
+          "name": "expired",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "intent_id": "submit_leave",
+        "approval_policy_binding_id": "leave_approval",
+        "request_state_path": "$.prepared_action",
+        "timeout_ms": 60000
+      }
+    },
+    {
+      "id": "write_tool",
+      "type": "tool_call",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "in",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "result",
+          "schema_ref": "#/types/Control",
+          "required": true
+        }
+      ],
+      "config": {
+        "binding_id": "submit_leave",
+        "input_state_path": "$.prepared_action",
+        "approval_node_id": "approve_write",
+        "timeout_ms": 5000,
+        "max_retries": 0,
+        "idempotency_key_state_path": "$.prepared_action.idempotency_key"
+      }
+    },
+    {
+      "id": "chat_out",
+      "type": "chat_output",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "read_done",
+          "schema_ref": "#/types/Control",
+          "required": false
+        },
+        {
+          "name": "write_done",
+          "schema_ref": "#/types/Control",
+          "required": false
+        },
+        {
+          "name": "rejected",
+          "schema_ref": "#/types/Control",
+          "required": false
+        },
+        {
+          "name": "expired",
+          "schema_ref": "#/types/Control",
+          "required": false
+        }
+      ],
+      "output_ports": [],
+      "config": {
+        "format": "answer_envelope"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_chat_auth",
+      "from": {
+        "node_id": "chat_in",
+        "port": "request"
+      },
+      "to": {
+        "node_id": "auth",
+        "port": "request"
+      }
+    },
+    {
+      "id": "e_auth_route",
+      "from": {
+        "node_id": "auth",
+        "port": "ready"
+      },
+      "to": {
+        "node_id": "route",
+        "port": "in"
+      }
+    },
+    {
+      "id": "e_route_read",
+      "from": {
+        "node_id": "route",
+        "port": "read"
+      },
+      "to": {
+        "node_id": "read_tool",
+        "port": "in"
+      }
+    },
+    {
+      "id": "e_read_loop",
+      "from": {
+        "node_id": "read_tool",
+        "port": "result"
+      },
+      "to": {
+        "node_id": "bounded_loop",
+        "port": "initial"
+      }
+    },
+    {
+      "id": "e_loop_next",
+      "from": {
+        "node_id": "bounded_loop",
+        "port": "next"
+      },
+      "to": {
+        "node_id": "reconcile_subgraph",
+        "port": "in"
+      }
+    },
+    {
+      "id": "e_reconcile_loop",
+      "from": {
+        "node_id": "reconcile_subgraph",
+        "port": "result"
+      },
+      "to": {
+        "node_id": "bounded_loop",
+        "port": "repeat"
+      }
+    },
+    {
+      "id": "e_loop_done",
+      "from": {
+        "node_id": "bounded_loop",
+        "port": "done"
+      },
+      "to": {
+        "node_id": "chat_out",
+        "port": "read_done"
+      }
+    },
+    {
+      "id": "e_route_approval",
+      "from": {
+        "node_id": "route",
+        "port": "default"
+      },
+      "to": {
+        "node_id": "approve_write",
+        "port": "in"
+      }
+    },
+    {
+      "id": "e_approval_write",
+      "from": {
+        "node_id": "approve_write",
+        "port": "approved"
+      },
+      "to": {
+        "node_id": "write_tool",
+        "port": "in"
+      }
+    },
+    {
+      "id": "e_approval_rejected",
+      "from": {
+        "node_id": "approve_write",
+        "port": "rejected"
+      },
+      "to": {
+        "node_id": "chat_out",
+        "port": "rejected"
+      }
+    },
+    {
+      "id": "e_approval_expired",
+      "from": {
+        "node_id": "approve_write",
+        "port": "expired"
+      },
+      "to": {
+        "node_id": "chat_out",
+        "port": "expired"
+      }
+    },
+    {
+      "id": "e_write_output",
+      "from": {
+        "node_id": "write_tool",
+        "port": "result"
+      },
+      "to": {
+        "node_id": "chat_out",
+        "port": "write_done"
+      }
+    }
+  ]
+}

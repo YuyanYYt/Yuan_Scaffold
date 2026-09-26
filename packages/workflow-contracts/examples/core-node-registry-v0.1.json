@@ -1,0 +1,447 @@
+{
+  "registry_schema_version": "0.1.0",
+  "workflow_schema_version": "0.1.0",
+  "nodes": [
+    {
+      "type": "chat_input",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/chatInputConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 0,
+          "max_ports": 0,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "allowed_names": []
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "request"
+          ],
+          "allowed_names": [
+            "request"
+          ]
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "io.chat_input"
+      },
+      "security": {
+        "effect": "none",
+        "risk": "low",
+        "authorization": "none",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "auth_context",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/authContextConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        }
+      },
+      "executor": {
+        "backend": "java_control_plane",
+        "capability": "auth.context.resolve"
+      },
+      "security": {
+        "effect": "read",
+        "risk": "medium",
+        "authorization": "server_context",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "rag_retrieve",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/ragRetrieveConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type",
+          "required_schema_ref": "#/types/EvidenceSet"
+        }
+      },
+      "executor": {
+        "backend": "python_rag_runtime",
+        "capability": "rag.retrieve"
+      },
+      "security": {
+        "effect": "read",
+        "risk": "medium",
+        "authorization": "runtime_recheck",
+        "approval": "none"
+      },
+      "required_bindings": [
+        "knowledge_base",
+        "index"
+      ]
+    },
+    {
+      "type": "answer_with_citation",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/answerWithCitationConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type",
+          "required_schema_ref": "#/types/EvidenceSet"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "model.generate"
+      },
+      "security": {
+        "effect": "external",
+        "risk": "medium",
+        "authorization": "runtime_recheck",
+        "approval": "none"
+      },
+      "required_bindings": [
+        "model",
+        "prompt"
+      ]
+    },
+    {
+      "type": "answer_gate",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/answerGateConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "policy.answer_gate"
+      },
+      "security": {
+        "effect": "none",
+        "risk": "medium",
+        "authorization": "runtime_recheck",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "chat_output",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/chatOutputConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": null,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 0,
+          "max_ports": 0,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "allowed_names": []
+        }
+      },
+      "executor": {
+        "backend": "java_control_plane",
+        "capability": "io.chat_output"
+      },
+      "security": {
+        "effect": "external",
+        "risk": "medium",
+        "authorization": "runtime_recheck",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "branch",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/branchConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 2,
+          "max_ports": null,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "default"
+          ]
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "flow.branch"
+      },
+      "security": {
+        "effect": "none",
+        "risk": "low",
+        "authorization": "none",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "loop",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/loopConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 2,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "initial"
+          ],
+          "allowed_names": [
+            "initial",
+            "repeat"
+          ]
+        },
+        "output": {
+          "min_ports": 2,
+          "max_ports": 2,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "next",
+            "done"
+          ],
+          "allowed_names": [
+            "next",
+            "done"
+          ]
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "flow.loop"
+      },
+      "security": {
+        "effect": "none",
+        "risk": "medium",
+        "authorization": "none",
+        "approval": "none"
+      },
+      "required_bindings": []
+    },
+    {
+      "type": "tool_call",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/toolCallConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        }
+      },
+      "executor": {
+        "backend": "delegated_via_binding",
+        "capability": "tool.invoke"
+      },
+      "security": {
+        "effect": "binding_dependent",
+        "risk": "binding_dependent",
+        "authorization": "binding_policy",
+        "approval": "binding_policy"
+      },
+      "required_bindings": [
+        "tool"
+      ]
+    },
+    {
+      "type": "human_approval",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/humanApprovalConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "in"
+          ],
+          "allowed_names": [
+            "in"
+          ]
+        },
+        "output": {
+          "min_ports": 3,
+          "max_ports": 3,
+          "name_policy": "fixed",
+          "schema_ref_policy": "workflow_local_type",
+          "required_names": [
+            "approved",
+            "rejected",
+            "expired"
+          ],
+          "allowed_names": [
+            "approved",
+            "rejected",
+            "expired"
+          ]
+        }
+      },
+      "executor": {
+        "backend": "java_control_plane",
+        "capability": "approval.request"
+      },
+      "security": {
+        "effect": "external",
+        "risk": "medium",
+        "authorization": "runtime_recheck",
+        "approval": "none"
+      },
+      "required_bindings": [
+        "approval_policy"
+      ]
+    },
+    {
+      "type": "subgraph",
+      "type_version": "0.1.0",
+      "immutable": true,
+      "lifecycle": {
+        "status": "declared",
+        "since": "0.1.0"
+      },
+      "config_schema_ref": "../schema/workflow-ir-v0.1.schema.json#/$defs/subgraphConfig",
+      "port_contract": {
+        "input": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        },
+        "output": {
+          "min_ports": 1,
+          "max_ports": 1,
+          "name_policy": "workflow_declared",
+          "schema_ref_policy": "workflow_local_type"
+        }
+      },
+      "executor": {
+        "backend": "python_langgraph",
+        "capability": "workflow.subgraph.invoke"
+      },
+      "security": {
+        "effect": "binding_dependent",
+        "risk": "binding_dependent",
+        "authorization": "runtime_recheck",
+        "approval": "binding_policy"
+      },
+      "required_bindings": [
+        "subgraph"
+      ]
+    }
+  ]
+}

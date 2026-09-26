@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["citation_id", "source_version", "text"],
+        "properties": {
+          "citation_id": { "type": "string" },
+          "source_version": { "type": "string" },
+          "text": { "type": "string" }
+        }
+      }
+    }
+  }
+}

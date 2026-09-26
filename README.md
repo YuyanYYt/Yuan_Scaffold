@@ -10,9 +10,10 @@
 
 - 已将两份项目开发地图与 Agent 组件需求归并为本仓库唯一的 [项目总地图](ProjectDocs/项目总地图.md)，以主版本覆盖矩阵推进螺旋式迭代，并用 S0-S13 记录能力与阶段门。
 - 已完成 React Flow 与主流可视化 AI 项目中文本处理节点的源码调研。
+- [Workflow IR v0.1 契约包](packages/workflow-contracts/README.md) 已包含节点注册表、两个 HR 草稿样例和静态校验器；28 项测试通过。它尚不能发布或执行工作流。
 - 原 LangGraph 项目中已经验证的 Agent Runtime 与 RAG 摄取能力只登记为迁移候选；尚未复制到本仓库，也不视为本项目已实现。
 - MCP Scale、短期与三类长期记忆、多 Agent 可选配置、分段 TopK 和 HNSW 参数实验已进入开发地图；均未实现。
-- 当前仓库暂不锁定具体依赖版本，待第一阶段建立可运行基线时统一确定。
+- 契约包已固定 Node.js 最低版本和 Ajv 依赖；Java、Python、React 与 LangGraph 的组合版本待可运行基线建立时确定。
 
 ## 文档入口
 

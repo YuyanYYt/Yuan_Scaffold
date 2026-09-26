@@ -1,0 +1,16 @@
+{
+  "name": "@yuan-scaffold/workflow-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "validate:example": "node src/validate.mjs examples/hr-policy-qa.json"
+  },
+  "dependencies": {
+    "ajv": "8.20.0"
+  }
+}

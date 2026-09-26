@@ -1,0 +1,465 @@
+{
+  "schema_version": "0.1.0",
+  "workflow_id": "hr.policy_qa",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "entry_node_id": "chat_in",
+  "state_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "user_message"
+    ],
+    "properties": {
+      "user_message": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "runtime_context": {
+        "type": "object"
+      },
+      "evidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "citation_id",
+                "source_version",
+                "text"
+              ],
+              "properties": {
+                "citation_id": {
+                  "type": "string"
+                },
+                "source_version": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "draft": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "citation_ids"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "citation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "answer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "text",
+          "citation_ids"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "answered",
+              "abstained",
+              "clarify",
+              "escalated"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "citation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "types": {
+    "UserMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "AuthorizedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "EvidenceSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "citation_id",
+              "source_version",
+              "text"
+            ],
+            "properties": {
+              "citation_id": {
+                "type": "string"
+              },
+              "source_version": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "AnswerDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "citation_ids"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "citation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AnswerEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "text",
+        "citation_ids"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "answered",
+            "abstained",
+            "clarify",
+            "escalated"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "citation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "bindings": {
+    "models": [
+      {
+        "id": "answer_model",
+        "resource_id": "model.hr_answer",
+        "version": "1.0.0"
+      }
+    ],
+    "prompts": [
+      {
+        "id": "answer_prompt",
+        "resource_id": "prompt.hr_policy_answer",
+        "version": "1.0.0"
+      }
+    ],
+    "knowledge_bases": [
+      {
+        "id": "hr_policy_kb",
+        "resource_id": "kb.hr_policy",
+        "version": "2026.09.26"
+      }
+    ],
+    "indexes": [
+      {
+        "id": "hr_policy_index",
+        "resource_id": "index.hr_policy",
+        "version": "idx.2026.09.26.1",
+        "kind": "hnsw",
+        "build_params": {
+          "m": 16,
+          "ef_construction": 128
+        }
+      }
+    ],
+    "tools": [],
+    "subgraphs": [],
+    "approval_policies": []
+  },
+  "execution_policy": {
+    "max_steps": 12,
+    "max_duration_ms": 30000,
+    "max_tool_calls": 0,
+    "max_model_tokens": 2048,
+    "max_cost": {
+      "amount_micro": 500000,
+      "currency": "USD"
+    }
+  },
+  "nodes": [
+    {
+      "id": "chat_in",
+      "type": "chat_input",
+      "type_version": "0.1.0",
+      "input_ports": [],
+      "output_ports": [
+        {
+          "name": "request",
+          "schema_ref": "#/types/UserMessage",
+          "required": true
+        }
+      ],
+      "config": {
+        "source": "user_message"
+      }
+    },
+    {
+      "id": "auth",
+      "type": "auth_context",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "request",
+          "schema_ref": "#/types/UserMessage",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "authorized_request",
+          "schema_ref": "#/types/AuthorizedRequest",
+          "required": true
+        }
+      ],
+      "config": {
+        "source": "server_context"
+      }
+    },
+    {
+      "id": "retrieve_policy",
+      "type": "rag_retrieve",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "authorized_request",
+          "schema_ref": "#/types/AuthorizedRequest",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "evidence",
+          "schema_ref": "#/types/EvidenceSet",
+          "required": true
+        }
+      ],
+      "config": {
+        "knowledge_base_binding_id": "hr_policy_kb",
+        "index_binding_id": "hr_policy_index",
+        "query_state_path": "$.user_message.text",
+        "retrieval": {
+          "strategy": "hybrid",
+          "dense_top_k": 12,
+          "sparse_top_k": 12,
+          "fusion_top_k": 10,
+          "rerank_top_k": 5,
+          "context_top_k": 3,
+          "ef_search": 64,
+          "config_version": "0.1.0"
+        }
+      }
+    },
+    {
+      "id": "compose_answer",
+      "type": "answer_with_citation",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "evidence",
+          "schema_ref": "#/types/EvidenceSet",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "draft",
+          "schema_ref": "#/types/AnswerDraft",
+          "required": true
+        }
+      ],
+      "config": {
+        "model_binding_id": "answer_model",
+        "prompt_binding_id": "answer_prompt",
+        "max_output_tokens": 512
+      }
+    },
+    {
+      "id": "answer_gate",
+      "type": "answer_gate",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "draft",
+          "schema_ref": "#/types/AnswerDraft",
+          "required": true
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "answer",
+          "schema_ref": "#/types/AnswerEnvelope",
+          "required": true
+        }
+      ],
+      "config": {
+        "checks": [
+          "groundedness",
+          "citation",
+          "policy"
+        ],
+        "on_fail": "abstain"
+      }
+    },
+    {
+      "id": "chat_out",
+      "type": "chat_output",
+      "type_version": "0.1.0",
+      "input_ports": [
+        {
+          "name": "answer",
+          "schema_ref": "#/types/AnswerEnvelope",
+          "required": true
+        }
+      ],
+      "output_ports": [],
+      "config": {
+        "format": "answer_envelope"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_chat_auth",
+      "from": {
+        "node_id": "chat_in",
+        "port": "request"
+      },
+      "to": {
+        "node_id": "auth",
+        "port": "request"
+      }
+    },
+    {
+      "id": "e_auth_retrieve",
+      "from": {
+        "node_id": "auth",
+        "port": "authorized_request"
+      },
+      "to": {
+        "node_id": "retrieve_policy",
+        "port": "authorized_request"
+      }
+    },
+    {
+      "id": "e_retrieve_answer",
+      "from": {
+        "node_id": "retrieve_policy",
+        "port": "evidence"
+      },
+      "to": {
+        "node_id": "compose_answer",
+        "port": "evidence"
+      }
+    },
+    {
+      "id": "e_answer_gate",
+      "from": {
+        "node_id": "compose_answer",
+        "port": "draft"
+      },
+      "to": {
+        "node_id": "answer_gate",
+        "port": "draft"
+      }
+    },
+    {
+      "id": "e_gate_output",
+      "from": {
+        "node_id": "answer_gate",
+        "port": "answer"
+      },
+      "to": {
+        "node_id": "chat_out",
+        "port": "answer"
+      }
+    }
+  ]
+}

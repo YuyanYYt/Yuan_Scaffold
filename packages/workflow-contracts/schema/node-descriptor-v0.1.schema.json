@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/YuyanYYt/Yuan_Scaffold/packages/workflow-contracts/schema/node-descriptor-v0.1.schema.json",
+  "title": "Yuan Scaffold Node Registry Contract v0.1",
+  "description": "A descriptor declares a versioned node contract. Registration alone does not prove that an executor is implemented or trusted; the server resolves the executor and all resource bindings before publication and execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_schema_version", "workflow_schema_version", "nodes"],
+  "properties": {
+    "registry_schema_version": {
+      "const": "0.1.0"
+    },
+    "workflow_schema_version": {
+      "const": "0.1.0"
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nodeDescriptor"
+      }
+    }
+  },
+  "$defs": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "nodeType": {
+      "oneOf": [
+        {
+          "enum": [
+            "chat_input",
+            "auth_context",
+            "rag_retrieve",
+            "answer_with_citation",
+            "answer_gate",
+            "chat_output",
+            "branch",
+            "loop",
+            "tool_call",
+            "human_approval",
+            "subgraph"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^ext\\.[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+        }
+      ]
+    },
+    "nodeDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "type_version",
+        "immutable",
+        "lifecycle",
+        "config_schema_ref",
+        "port_contract",
+        "executor",
+        "security",
+        "required_bindings"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nodeType"
+        },
+        "type_version": {
+          "$ref": "#/$defs/version"
+        },
+        "immutable": {
+          "description": "A published type and type_version pair may never change its execution semantics or contract in place.",
+          "const": true
+        },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "since"],
+          "properties": {
+            "status": {
+              "enum": ["declared", "implemented", "deprecated", "retired"]
+            },
+            "since": {
+              "$ref": "#/$defs/version"
+            },
+            "deprecated_since": {
+              "$ref": "#/$defs/version"
+            },
+            "replacement_type": {
+              "$ref": "#/$defs/nodeType"
+            }
+          }
+        },
+        "config_schema_ref": {
+          "description": "URI reference to the node config JSON Schema; relative references resolve from the registry document, not the workflow document.",
+          "type": "string",
+          "pattern": "^[^#]+#/.+$"
+        },
+        "port_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["input", "output"],
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/portSide"
+            },
+            "output": {
+              "$ref": "#/$defs/portSide"
+            }
+          }
+        },
+        "executor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["backend", "capability"],
+          "properties": {
+            "backend": {
+              "enum": [
+                "python_langgraph",
+                "python_rag_runtime",
+                "java_control_plane",
+                "delegated_via_binding"
+              ]
+            },
+            "capability": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_.:-]*$"
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["effect", "risk", "authorization", "approval"],
+          "properties": {
+            "effect": {
+              "enum": ["none", "read", "write", "external", "binding_dependent"]
+            },
+            "risk": {
+              "enum": ["low", "medium", "high", "binding_dependent"]
+            },
+            "authorization": {
+              "enum": ["none", "server_context", "runtime_recheck", "binding_policy"]
+            },
+            "approval": {
+              "enum": ["none", "binding_policy", "always"]
+            }
+          }
+        },
+        "required_bindings": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "model",
+              "prompt",
+              "knowledge_base",
+              "index",
+              "tool",
+              "approval_policy",
+              "subgraph"
+            ]
+          }
+        }
+      }
+    },
+    "portSide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_ports", "max_ports", "name_policy", "schema_ref_policy"],
+      "properties": {
+        "min_ports": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_ports": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name_policy": {
+          "enum": ["fixed", "workflow_declared"]
+        },
+        "schema_ref_policy": {
+          "const": "workflow_local_type"
+        },
+        "required_schema_ref": {
+          "description": "Optional canonical payload type reference required by a built-in executor port.",
+          "type": "string",
+          "pattern": "^#/types/[A-Z][A-Za-z0-9_]*$"
+        },
+        "required_names": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "allowed_names": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        }
+      }
+    }
+  }
+}
