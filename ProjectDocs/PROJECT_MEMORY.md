@@ -32,13 +32,14 @@
 - GitHub 公开仓库和本地仓库已建立。
 - `ProjectDocs/项目总地图.md` 已整合产品与项目集、Spring Boot 企业能力、Agent 全组件、MCP Scale、RAG 参数实验、六条链路、Workflow IR、首个 HR 生成应用和主版本覆盖矩阵。
 - `ProjectDocs/ReactFlow与NLP节点调研.md` 已创建。
-- `packages/workflow-contracts/` 已建立 Workflow IR v0.1、11 种内置节点的声明式注册表、两个 HR 草稿样例和静态校验器；28 项测试通过。它不可发布、不可执行，尚无 LangGraph Runtime。
+- `packages/workflow-contracts/` 已建立 Workflow IR v0.1、11 种内置节点的声明式注册表、两个 HR 草稿样例和静态校验器；28 项测试通过。该契约包自身不可发布或执行工作流。
+- `services/agent-runtime-python/` 已建立受限六节点 LangGraph 运行包，使用 SQLite Checkpoint、节点级脱敏 Trace 和合成测试适配器；10 项测试通过。它不包含生产检索、模型、授权或答案门适配器。
 - 当前 LangGraph 项目中已有的 Runtime、Tool、RAG 摄取和质量门代码尚未复制，只登记为迁移候选。
-- 尚未创建 Java、Python 或 React 生产源码目录；总地图中的目录为目标结构。
+- 尚未创建 Java 控制面或 React 平台生产源码目录；总地图中其余目录为目标结构。
 
 ## 当前唯一下一步
 
-- S2：用 v0.1 IR 的 HR 政策问答样例实现最小 LangGraph 编译、执行、Checkpoint、Trace 与预算停止，再补 Java / Python 跨语言适配验证。
+- v0.3：先建设独立的 Spring Boot 企业基座、受信 Java-Python 调用，以及可生成并独立运行的非 HR 最小业务模块；真实适配器与完整平台能力按覆盖矩阵推进。
 
 ## 待确认
 

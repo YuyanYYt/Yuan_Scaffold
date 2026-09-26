@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yuan-agent-runtime"
+version = "0.2.0"
+description = "Restricted LangGraph runtime for Yuan Scaffold Workflow IR v0.1"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "langgraph==1.2.12",
+  "langgraph-checkpoint-sqlite==3.1.1",
+  "jsonschema>=4.23,<5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/yuan_agent_runtime"]
