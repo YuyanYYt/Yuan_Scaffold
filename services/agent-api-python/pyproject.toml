@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yuan-agent-api"
+version = "0.3.0"
+description = "Fail-closed internal invocation protocol for Yuan Agent Runtime"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "pydantic>=2.11,<3",
+]
+
+[project.optional-dependencies]
+test = ["httpx>=0.28,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/yuan_agent_api"]
