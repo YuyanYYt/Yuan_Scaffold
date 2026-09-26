@@ -48,9 +48,11 @@
 
 ## 验证与未完成范围
 
-`PlatformIsolationIntegrationTest` 覆盖：Flyway 迁移、租户头伪造与跨租户读取、跨租户角色和菜单赋权拒绝、组合外键层隔离、权限与认证区分、CSRF 拒绝及令牌成功提交、统一错误与租户审计隔离。`AgentProtocolTest` 直接读取 Python 包的 `tests/vectors/hmac-v1.json`，校验 Java 生成的断言与签名和 Python 固定向量逐字节一致；本地 HTTP stub 验证 start/status/resume 路径、原始体哈希和身份绑定。当前 `mvn test` 为 12 项通过。
+`PlatformIsolationIntegrationTest` 覆盖：Flyway 迁移、租户头伪造与跨租户读取、跨租户角色和菜单赋权拒绝、组合外键层隔离、权限与认证区分、CSRF 拒绝及令牌成功提交、统一错误与租户审计隔离。`AgentProtocolTest` 直接读取 Python 包的 `tests/vectors/hmac-v1.json`，校验 Java 生成的断言与签名和 Python 固定向量逐字节一致；本地 HTTP stub 验证 start/status/resume 路径、原始体哈希和身份绑定。默认 `mvn test` 为 12 项通过，另有 3 项真实跨服务联测按设计跳过，不要求安装 Python。
 
-内部客户端**没有自动注册为 Bean**，也没有对浏览器开放启动 Agent 的 Controller。调用方须先实现可信 Release Catalog、会话/线程 ACL、密钥配置与轮换，然后显式构造客户端并保存 `run_id`、`thread_id` 和 `request_id` 供幂等重试。当前只有 HMAC 协议和本地 stub 互通证据；Python 端默认没有真实 Catalog 和执行后端，因此不能宣称 Agent 业务链路已经打通。
+从仓库根目录运行 `bash services/platform-java/tests/run-live-agent-protocol.sh`，会按 Python 锁文件安装测试依赖，并显式运行 `AgentLiveProtocolIntegrationTest`。3 项测试启动真实本地 Uvicorn，验证无 Catalog 的 start/status 拒绝、无执行器的 start/resume 拒绝，以及测试专用 Catalog / 执行器下的 start→status→resume→status。该命令本轮 3 项通过；SQLite、端口文件和日志保留在 `target/agent-live-protocol/`。测试执行器只存在于 Python `tests/`，不进入生产应用工厂。
+
+内部客户端**没有自动注册为 Bean**，也没有对浏览器开放启动 Agent 的 Controller。调用方须先实现可信 Release Catalog、会话/线程 ACL、密钥配置与轮换，然后显式构造客户端并保存 `run_id`、`thread_id` 和 `request_id` 供幂等重试。当前有 HMAC 向量、本地 stub 和真实本地 FastAPI 的协议互通证据；Python 端默认没有真实 Catalog 和执行后端，联测成功路径只用测试专用执行器，因此不能宣称 Agent 业务链路已经打通。
 
 本包尚未实现 ABAC、部门/岗位、字典/参数、任务、正式租户开通、用户/角色/菜单的更新和删除、权限撤销 API、登录和拒绝请求审计、生产数据库及安全部署验证、可信 Release Catalog 与真实 Agent 后端接线、平台管理端、通用代码生成器和全部 Spring Boot 能力。它是 v0.3 企业最小闭环的 Java 基座切片，不能代表 v0.3 整体验收完成。
 

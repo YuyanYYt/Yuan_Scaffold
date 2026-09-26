@@ -11,7 +11,7 @@ uv sync --locked --extra test
 ./.venv/bin/python -m unittest discover -s tests -v
 ```
 
-`pyproject.toml` and `uv.lock` capture the package and dependency resolution. Each test retains its SQLite database under `artifacts/test-runs/<uuid>/`; `.venv` and all generated artifacts remain in place until the user approves any cleanup. The test key and fixed signature vector in `tests/vectors/hmac-v1.json` are public, test-only data.
+`pyproject.toml` and `uv.lock` capture the package and dependency resolution. The test extra includes locked Uvicorn for the opt-in Java→Python live HTTP check (`bash services/platform-java/tests/run-live-agent-protocol.sh` from the repository root). Its Catalog and executor live only in `tests/live_protocol_server.py`; the production app factory has no defaults. Each Python unit test retains its SQLite database under `artifacts/test-runs/<uuid>/`; the live test retains SQLite and logs under `services/platform-java/target/agent-live-protocol/`. `.venv` and all generated artifacts remain in place until the user approves any cleanup. The test key and fixed signature vector in `tests/vectors/hmac-v1.json` are public, test-only data.
 
 ## Endpoints and bodies
 
