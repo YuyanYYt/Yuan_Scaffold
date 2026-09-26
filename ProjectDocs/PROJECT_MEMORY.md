@@ -11,12 +11,12 @@
 - React + React Flow 负责可视化开发工作台，但不承担可信执行。
 - Python FastAPI + LangGraph 负责 Agent、RAG、Memory、Tool Adapter、Model Gateway 和评测。
 - 支持从可视化 Workflow IR 导出可维护、可独立运行的 LangGraph 源码工程。
-- HR 工作台是脚手架生成的首个应用和验收样例；脚手架本体采用若依式开发平台与代码生成形式，Agent 画板是平台中的开发模块。
-- Spring Boot 企业应用基座、Agent 快速搭建和低代码 Java / Python / Web 源码生成是三个产品能力；企业后台与 CRUD 生成体验参考若依，模块和代码独立实现。
+- HR 工作台是脚手架生成的首个应用和验收样例；脚手架本体自主设计开发平台与代码生成器，Agent 画板是平台中的开发模块。
+- Spring Boot 企业应用基座、Agent 快速搭建和低代码 Java / Python / Web 源码生成是三个产品能力；企业后台与 CRUD 生成体验只参考若依的设计理念，本项目不是若依的 Fork 或二次开发。
 
 ## 当前已确认决策
 
-- 默认架构从“Java 模块化单体控制面 + 独立 Python Agent Runtime + 若依式 React 平台管理端（内含 Agent Studio）”开始，保留按边界拆分微服务的能力。
+- 默认架构从“Java 模块化单体控制面 + 独立 Python Agent Runtime + 自主实现的 React 平台管理端（内含 Agent Studio）”开始，保留按边界拆分微服务的能力。
 - 画布保存 UI Graph，服务端转换并校验 Canonical Workflow IR；生产运行时不直接信任 React Flow JSON。
 - 文本处理分为确定性 Text Processing、模型型 NLP、LLM Operation 和 RAG 节点，不使用含义模糊的单一 NLP 分类。
 - 知识摄取采用 G0 Source Admission 至 G5 Index Admission 六道质量门。
@@ -30,7 +30,7 @@
 ## 当前状态
 
 - GitHub 公开仓库和本地仓库已建立。
-- `ProjectDocs/项目总地图.md` 已整合产品与项目集、Spring Boot / 若依式能力、Agent 全组件、MCP Scale、RAG 参数实验、六条链路、Workflow IR、首个 HR 生成应用和 S0-S13 顺序。
+- `ProjectDocs/项目总地图.md` 已整合产品与项目集、Spring Boot 企业能力、Agent 全组件、MCP Scale、RAG 参数实验、六条链路、Workflow IR、首个 HR 生成应用和主版本覆盖矩阵。
 - `ProjectDocs/ReactFlow与NLP节点调研.md` 已创建。
 - 当前 LangGraph 项目中已有的 Runtime、Tool、RAG 摄取和质量门代码尚未复制，只登记为迁移候选。
 - 尚未创建 Java、Python 或 React 生产源码目录；总地图中的目录为目标结构。
