@@ -1,0 +1,11 @@
+{
+  "name": "@yuan-scaffold/app-generator",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "generate:asset": "node src/cli.mjs generate ../../examples/asset-app/manifest.json ../../examples/asset-app"
+  }
+}

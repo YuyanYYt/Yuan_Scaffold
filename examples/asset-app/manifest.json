@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatorVersion": "0.3.0",
+  "project": {
+    "groupId": "dev.yuan.sample",
+    "artifactId": "asset-app",
+    "packageName": "dev.yuan.sample.asset"
+  },
+  "entity": {
+    "name": "Asset",
+    "table": "assets",
+    "apiPath": "/api/assets",
+    "fields": [
+      { "name": "sku", "type": "string", "required": true, "maxLength": 64, "unique": true },
+      { "name": "name", "type": "string", "required": true, "maxLength": 160 },
+      { "name": "quantity", "type": "integer", "required": true, "minimum": 0 },
+      { "name": "available", "type": "boolean", "required": true }
+    ],
+    "permissions": { "read": "asset:read", "write": "asset:write" }
+  }
+}
