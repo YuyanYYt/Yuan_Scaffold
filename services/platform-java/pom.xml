@@ -11,7 +11,7 @@
     </parent>
     <groupId>dev.yuanscaffold</groupId>
     <artifactId>platform-java</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <name>Yuan Scaffold Java Foundation</name>
     <description>Independent Spring Boot platform foundation for Yuan Scaffold</description>
     <properties>

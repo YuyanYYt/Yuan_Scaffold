@@ -160,12 +160,24 @@ public class PlatformStore {
                 """, UUID.randomUUID(), tenantId, actorUserId, action, objectType, objectId);
     }
 
+    public void insertSourceExportAudit(UUID tenantId, UUID actorUserId, UUID exportId,
+                                        String manifestSha256, String outcome, String errorCode) {
+        jdbc.update("""
+                INSERT INTO audit_events (id, tenant_id, actor_user_id, action, object_type, object_id,
+                                          manifest_sha256, outcome, error_code)
+                VALUES (?, ?, ?, 'CODE_EXPORT', 'SOURCE_EXPORT', ?, ?, ?, ?)
+                """, UUID.randomUUID(), tenantId, actorUserId, exportId,
+                manifestSha256, outcome, errorCode);
+    }
+
     public List<AuditView> listAudit(UUID tenantId, int limit) {
         return jdbc.query("""
-                SELECT id, actor_user_id, action, object_type, object_id, created_at
+                SELECT id, actor_user_id, action, object_type, object_id,
+                       manifest_sha256, outcome, error_code, created_at
                 FROM audit_events WHERE tenant_id = ? ORDER BY created_at DESC, id DESC LIMIT ?
                 """, (rs, row) -> new AuditView(id(rs, "id"), id(rs, "actor_user_id"),
                 rs.getString("action"), rs.getString("object_type"), id(rs, "object_id"),
+                rs.getString("manifest_sha256"), rs.getString("outcome"), rs.getString("error_code"),
                 rs.getTimestamp("created_at").toInstant()), tenantId, limit);
     }
 
@@ -194,5 +206,6 @@ public class PlatformStore {
     public record MenuView(UUID id, String code, String title, String permissionCode,
                            String path, Instant createdAt) { }
     public record AuditView(UUID id, UUID actorUserId, String action, String objectType,
-                            UUID objectId, Instant createdAt) { }
+                            UUID objectId, String manifestSha256, String outcome,
+                            String errorCode, Instant createdAt) { }
 }

@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir, mkdtemp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateManifest } from '../src/manifest.mjs';
 import { renderProject } from '../src/render.mjs';
 import { generate } from '../src/cli.mjs';
+import { previewProject } from '../src/plan.mjs';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const samplePath = resolve(packageRoot, '../../examples/asset-app/manifest.json');
@@ -21,6 +23,8 @@ test('manifest accepts the asset app and rejects unsafe names, types and privile
     manifest => { manifest.project.packageName = 'dev.yuan.sample.class'; },
     manifest => { manifest.entity.table = 'assets;drop_table'; },
     manifest => { manifest.entity.table = 'app_users'; },
+    manifest => { manifest.entity.name = 'String'; },
+    manifest => { manifest.entity.name = 'Entity'; },
     manifest => { manifest.entity.apiPath = '/api/csrf'; },
     manifest => { manifest.project.artifactId = 'x'.repeat(300); },
     manifest => { manifest.entity.fields[0].name = 'tenantSlug'; },
@@ -58,6 +62,45 @@ test('rendering is deterministic, independent of HR, and tenant unique indexes a
   assert.ok([...otherFiles.keys()].some(name => name.endsWith('/TicketController.java')));
   assert.match(otherFiles.get('backend/src/main/resources/db/migration/V1__initial.sql'), /CREATE TABLE tickets/);
   assert.match(otherFiles.get('web/package-lock.json'), /"name": "ticket-app-web"/);
+});
+
+test('preview returns the actual generated source and hashes without writing an application', () => {
+  const preview = previewProject(sample);
+  assert.equal(preview.previewSchemaVersion, '1.0.0');
+  assert.ok(preview.totalBytes > 0 && preview.totalBytes <= 2 * 1024 * 1024);
+  assert.ok(preview.files.some(file => file.path.endsWith('/AssetController.java')));
+  assert.deepEqual(preview.files.map(file => file.path), [...preview.files.map(file => file.path)].sort());
+  for (const file of preview.files) {
+    assert.equal(file.bytes, Buffer.byteLength(file.content, 'utf8'));
+    assert.equal(file.sha256, createHash('sha256').update(file.content).digest('hex'));
+  }
+  const record = JSON.parse(preview.files.find(file => file.path === '.yuan-generation.json').content);
+  assert.equal(preview.manifestSha256, record.manifestSha256);
+  for (const file of preview.files.filter(file => file.path !== '.yuan-generation.json')) {
+    assert.equal(record.files[file.path], file.sha256);
+  }
+
+  const cli = spawnSync(process.execPath, ['src/cli.mjs', 'preview', '-'], {
+    cwd: packageRoot, input: JSON.stringify(sample), encoding: 'utf8', maxBuffer: 3 * 1024 * 1024
+  });
+  assert.equal(cli.status, 0, cli.stderr);
+  assert.deepEqual(JSON.parse(cli.stdout), preview);
+
+  const invalid = spawnSync(process.execPath, ['src/cli.mjs', 'preview', '-'], {
+    cwd: packageRoot, input: JSON.stringify({ ...sample, extra: true }), encoding: 'utf8'
+  });
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /invalid manifest/);
+
+  const noisy = clone();
+  for (let index = 0; index < 600; index++) noisy[`unsupported_${index}`] = index;
+  const bounded = spawnSync(process.execPath, ['src/cli.mjs', 'preview', '-'], {
+    cwd: packageRoot, input: JSON.stringify(noisy), encoding: 'utf8'
+  });
+  assert.equal(bounded.status, 1);
+  assert.match(bounded.stderr, /^invalid manifest:/);
+  assert.match(bounded.stderr, /additional errors omitted/);
+  assert.ok(Buffer.byteLength(bounded.stderr) < 16 * 1024);
 });
 
 test('generate is reproducible and refuses edited files before writing', async () => {

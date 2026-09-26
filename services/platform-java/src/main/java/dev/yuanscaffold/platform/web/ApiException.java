@@ -20,6 +20,10 @@ public final class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", message);
     }
 
+    public static ApiException conflict(String message) {
+        return new ApiException(HttpStatus.CONFLICT, "CONFLICT", message);
+    }
+
     public HttpStatus status() {
         return status;
     }

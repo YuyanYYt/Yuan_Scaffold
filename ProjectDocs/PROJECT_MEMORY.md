@@ -37,12 +37,13 @@
 - `packages/app-generator/` 已建立单实体 Manifest 生成器；`examples/asset-app/` 是可独立运行的非 HR Java / React 生成样例，已完成后端测试、前端构建、HTTP 与浏览器验收。
 - `services/platform-java/` 已建立 Spring Boot 4.1.1 / Java 21 企业基座，含认证、租户、用户 / 角色 / 菜单创建与读取、CSRF、Flyway、事务审计、健康检查及 HMAC Agent 客户端；12 项 Java 测试通过。
 - `services/agent-api-python/` 已建立 FastAPI 内部协议边界，包含验签、授权绑定、幂等、状态和明确不可用响应；12 项测试通过。Java 固定签名向量与 Python 一致，真实本地 Java→FastAPI HTTP 联测 3 项通过；成功路径只用测试专用执行器。
+- v0.4 开发快照已加入 `apps/platform-admin/`、`packages/studio-graph/` 与 Java 项目草稿、稳定游标分页、源码预览、源码草稿 ZIP、导出审计及图静态校验 API。页面是通用脚手架管理端，不是 HR 工作台；Java 默认集成 33 项、Java→Node 桥接 3 项、Studio Graph 14 项、管理端 5 项通过；Asset ZIP 的后端 3 项测试及 Web 构建、真实 Java API 烟测、浏览器有效/无效图校验已通过。ZIP 标为 `DRAFT_UNVERIFIED`，不能把单一样例的构建结果外推到所有 Manifest。
 - 当前 LangGraph 项目中已有的 Runtime、Tool、RAG 摄取和质量门代码尚未复制，只登记为迁移候选。
-- v0.3 约定的最小验收门已通过，仍是 `0.3.0-SNAPSHOT`，未建立正式发布标签；独立 React 平台管理端、可信 ACTIVE Release Catalog、真实 Agent 适配器及完整 HR 应用尚未实现。
+- v0.3 约定的最小验收门已通过，未建立正式发布标签；Java 控制面进入 `0.4.0-SNAPSHOT` 开发快照。v0.4 整版的工作流持久化、沙箱运行/Trace、Python 源码导出、每次配置构建门与统一生成物安全契约尚未完成；可信 ACTIVE Release Catalog、真实 Agent 适配器及完整 HR 应用仍属后续版本。
 
 ## 当前主线
 
-- v0.4 可视化开发纵切：建立独立平台管理端及 React Flow → Canonical IR → 受限调试，统一生成应用与 Java 企业基座的安全、租户契约；真实 Agent 问答留到 v0.5 的可信 Release Catalog 与适配器闭环。
+- v0.4 可视化开发纵切：继续完成工作流图持久化、React Flow → Canonical IR → 受限沙箱运行/Trace、Python 源码导出、逐配置构建门，并统一生成应用与 Java 企业基座的安全、租户契约；真实 Agent 问答留到 v0.5 的可信 Release Catalog 与适配器闭环。
 
 ## 待确认
 

@@ -1,4 +1,7 @@
 const javaWords = new Set(`abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while record sealed permits non-sealed var yield`.split(' '));
+// The generated entity, repository and service share one Java package. A user
+// entity with any of these names would shadow a template import or field type.
+const generatedTypeNames = new Set(`Boolean Column Entity HttpStatus Id Instant Integer JpaRepository List Optional Page Pageable PageRequest ResponseStatusException Service Sort String Table Transactional UUID`.split(' '));
 const sqlWords = new Set(`all and as by check constraint create date default delete desc distinct drop false from group having in index insert into is join key like limit not null on or order primary references select set table true union unique update user values varchar where`.split(' '));
 const fieldTypes = new Set(['string', 'integer', 'boolean']);
 
@@ -43,6 +46,7 @@ export function validateManifest(manifest) {
     if (typeof entity.table === 'string' && (entity.table.length > 50 || sqlWords.has(entity.table))) errors.push('entity.table is reserved or too long');
     if (['app_users', 'flyway_schema_history'].includes(entity.table)) errors.push('entity.table conflicts with generated infrastructure');
     if (typeof entity.name === 'string' && javaWords.has(entity.name.toLowerCase())) errors.push('entity.name is reserved');
+    if (generatedTypeNames.has(entity.name)) errors.push('entity.name conflicts with a generated Java type');
     if (!Array.isArray(entity.fields) || entity.fields.length < 1 || entity.fields.length > 32) errors.push('entity.fields must have 1-32 entries');
     else {
       const names = new Set();

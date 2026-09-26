@@ -10,7 +10,9 @@ public enum Permission {
     ROLE_WRITE("system:role:write"),
     MENU_READ("system:menu:read"),
     MENU_WRITE("system:menu:write"),
-    AUDIT_READ("system:audit:read");
+    AUDIT_READ("system:audit:read"),
+    PROJECT_DRAFT_READ("studio:project:read"),
+    PROJECT_DRAFT_WRITE("studio:project:write");
 
     private final String code;
 

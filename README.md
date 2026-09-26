@@ -15,6 +15,7 @@
 - [v0.3 单实体生成器](packages/app-generator/README.md) 可从 Manifest 生成独立 Spring Boot 4.1.1 / Java 21 后端和 React 19.3 页面，保护人工改动；Asset 小样已完成后端测试、Web 构建、HTTP 与浏览器验收。它是非 HR 通用性样例，不是完整开发平台。
 - [v0.3 Java 企业基座](services/platform-java/README.md) 已实现 Web API、认证、租户隔离、用户 / 角色 / 菜单创建与读取、CSRF、Flyway、事务审计和健康检查；12 项测试包含 Java→Python 签名协议验证。[Python 内部 API](services/agent-api-python/README.md) 已实现验签、状态、幂等和不可用时的明确拒绝，12 项测试通过。
 - v0.3 的约定最小验收门已通过：Java 签名客户端与实际启动的本地 FastAPI 完成 3 项 HTTP 联测，缺少目录 / 执行器时明确拒绝；常规回归也已通过。联测成功路径只使用测试专用执行器。**目前没有真实 Agent 问答闭环，也没有 v0.3 正式发布标签。**
+- [v0.4 平台管理端开发快照](apps/platform-admin/README.md) 已接入 Java 租户草稿、单实体字段/权限配置、服务端源码预览，以及明确标为 `DRAFT_UNVERIFIED` 的 Java / Web 源码草稿 ZIP。[Studio Graph](packages/studio-graph/README.md) 将通用 React Flow 画板转换为不可执行、不可发布的 DRAFT IR。Asset ZIP 已在独立目录通过 Java 后端测试和 Web 构建；平台页面通过真实浏览器完成预览、下载、有效与无效画板校验。**这只是 v0.4 首个静态切片，未达到整版验收门。**
 - 原 LangGraph 项目中已经验证的 Agent Runtime 与 RAG 摄取能力只登记为迁移候选；尚未复制到本仓库，也不视为本项目已实现。
 - 短期记忆的基础 Checkpoint 已在 v0.2 受限运行包中实现；MCP Scale、完整短期记忆治理、三类长期记忆、多 Agent 可选配置、分段 TopK 和 HNSW 参数实验已进入开发地图，尚未实现。
 - 当前已验证的主要组合包括 Node.js 24.18、Python 3.11、Java 21、Spring Boot 4.1.1、React 19.3 / Vite 8.3.1 和 H2；其他数据库与生产部署仍需单独验收。具体能力、版本和证据见总地图第 11.2、11.3 节。
@@ -23,6 +24,7 @@
 
 - [项目总地图](ProjectDocs/项目总地图.md)
 - [React Flow 与 NLP 节点调研](ProjectDocs/ReactFlow与NLP节点调研.md)
+- [平台管理端](apps/platform-admin/README.md)
 - [项目记忆](ProjectDocs/PROJECT_MEMORY.md)
 
 ## 核心数据流

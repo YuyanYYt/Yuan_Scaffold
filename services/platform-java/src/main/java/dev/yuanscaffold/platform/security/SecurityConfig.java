@@ -2,6 +2,7 @@ package dev.yuanscaffold.platform.security;
 
 import tools.jackson.databind.ObjectMapper;
 import dev.yuanscaffold.platform.web.ApiError;
+import dev.yuanscaffold.platform.web.JsonRequestBodyLimitFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
@@ -43,7 +45,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, exception) ->
                                 writeError(response, mapper, 401, "UNAUTHENTICATED", "Authentication required"))
                         .accessDeniedHandler((request, response, exception) ->
-                                writeError(response, mapper, 403, "FORBIDDEN", "Permission denied")));
+                                writeError(response, mapper, 403, "FORBIDDEN", "Permission denied")))
+                .addFilterAfter(new JsonRequestBodyLimitFilter(mapper), AuthorizationFilter.class);
         return http.build();
     }
 
