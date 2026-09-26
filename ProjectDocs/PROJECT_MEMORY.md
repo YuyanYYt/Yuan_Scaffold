@@ -1,7 +1,7 @@
 # 项目记忆
 
-> 最后核对：2026-09-20  
-> 作用域：仅 `java-agent-scaffold` 仓库。
+> 最后核对：2026-09-26
+> 作用域：仅 `Yuan_Scaffold` 仓库（当前本地目录名为 `java-agent-scaffold`）。
 
 ## 稳定目标
 
@@ -12,6 +12,7 @@
 - Python FastAPI + LangGraph 负责 Agent、RAG、Memory、Tool Adapter、Model Gateway 和评测。
 - 支持从可视化 Workflow IR 导出可维护、可独立运行的 LangGraph 源码工程。
 - HR 员工服务是脚手架生成的首个最终成品，不是平台核心中的硬编码业务。
+- Spring Boot 企业应用基座、Agent 快速搭建和低代码 Java / Python / Web 源码生成是三个产品能力；企业后台与 CRUD 生成体验参考若依，模块和代码独立实现。
 
 ## 当前已确认决策
 
@@ -22,11 +23,14 @@
 - RAG 评测覆盖 Recall@K、Precision@K、MRR、nDCG、忠实度、引用支持率、延迟、费用和索引资源。
 - HNSW `M` / `efConstruction` 通过候选索引比较，`efSearch` 作为查询期参数实验。
 - 生成器属于开发工具；生成物可以脱离平台独立运行，并保留模板和 IR 版本用于升级。
+- `ProjectDocs/项目总地图.md` 是合并两份开发地图与 Agent 组件需求后的唯一脚手架实施顺序；上层 LangGraph 项目文档仅作迁移依据，教学流程不约束本仓库开发。
+- MCP Scale 指多 MCP 服务规模化接入与治理；RAG Lab 分别配置检索 TopK、索引构建参数 `M` / `efConstruction` 和查询参数 `efSearch`。
+- 每个交付版本先记录范围与验证证据，再提交并推送到 `YuyanYYt/Yuan_Scaffold`；规划文档与已实现功能分开标记。
 
 ## 当前状态
 
 - GitHub 公开仓库和本地仓库已建立。
-- `ProjectDocs/项目总地图.md` 已创建，覆盖产品边界、模块、六条链路、Workflow IR、RAG、HR 成品和 S0-S13 顺序。
+- `ProjectDocs/项目总地图.md` 已整合产品与项目集、Spring Boot / 若依式能力、Agent 全组件、MCP Scale、RAG 参数实验、六条链路、Workflow IR、HR 成品和 S0-S13 顺序。
 - `ProjectDocs/ReactFlow与NLP节点调研.md` 已创建。
 - 当前 LangGraph 项目中已有的 Runtime、Tool、RAG 摄取和质量门代码尚未复制，只登记为迁移候选。
 - 尚未创建 Java、Python 或 React 生产源码目录；总地图中的目录为目标结构。
@@ -37,7 +41,7 @@
 
 ## 待确认
 
-- 项目正式名称与品牌名；当前仓库名沿用 `java-agent-scaffold`。
+- 项目正式品牌名；当前以仓库名 `Yuan_Scaffold` 和工作名 Yuan Scaffold 标识。
 - 开源许可证。
 - Java、Node.js、Python、Spring Boot、React、LangGraph 的锁定版本。
 - 数据库、向量后端、队列和对象存储的首选实现。
