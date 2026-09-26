@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["httpx>=0.28,<1"]
+test = ["httpx>=0.28,<1", "uvicorn==0.52.4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/yuan_agent_api"]
